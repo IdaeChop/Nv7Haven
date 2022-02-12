@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -71,7 +72,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
 			if len(m.Attachments) < 1 {
-				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage", nil))
+				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage"))
 				return
 			}
 			b.polls.ImageCmd(suggestion, m.Attachments[0].URL, msg, rsp)
@@ -86,7 +87,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
 			if len(m.Attachments) < 1 {
-				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage", nil))
+				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage"))
 				return
 			}
 			b.polls.CatImgCmd(suggestion, m.Attachments[0].URL, msg, rsp)
@@ -104,6 +105,19 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.elements.HintCmd(suggestion, true, false, msg, rsp)
 			return
 		}
+		
+		if cmd == "invhint" || cmd == "ih" {
+			if len(m.Content) <= len(cmd)+2 {
+				b.elements.HintCmd("", false, true, msg, rsp)
+				return
+			}
+			suggestion := m.Content[len(cmd)+2:]
+			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
+
+			b.elements.HintCmd(suggestion, true, true, msg, rsp)
+			return
+		}
+
 
 		if cmd == "addcat" || cmd == "ac" {
 			if len(m.Content) <= len(cmd)+2 {
@@ -112,7 +126,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			txt := m.Content[len(cmd)+2:]
 			sepPos := strings.Index(txt, "|")
 			if sepPos == -1 {
-				rsp.ErrorMessage(db.Config.LangProperty("AddCatMustHaveSeparator", nil))
+				rsp.ErrorMessage(db.Config.LangProperty("AddCatMustHaveSeparator"))
 				return
 			}
 
@@ -130,7 +144,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			txt := m.Content[len(cmd)+2:]
 			sepPos := strings.Index(txt, "|")
 			if sepPos == -1 {
-				rsp.ErrorMessage(db.Config.LangProperty("RmCatMustHaveSeparator", nil))
+				rsp.ErrorMessage(db.Config.LangProperty("RmCatMustHaveSeparator"))
 				return
 			}
 
@@ -170,7 +184,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			txt := m.Content[len(cmd)+2:]
 			sepPos := strings.Index(txt, "|")
 			if sepPos == -1 {
-				rsp.ErrorMessage(db.Config.LangProperty("MarkMustHaveSeparator", nil))
+				rsp.ErrorMessage(db.Config.LangProperty("MarkMustHaveSeparator"))
 				return
 			}
 
@@ -192,7 +206,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if rsp.Error(err) {
 				return
 			}
-			rsp.Message(db.Config.LangProperty("PingMessage", time.Since(tm).String()))
+			rsp.Message(fmt.Sprintf(db.Config.LangProperty("PingMessage"), time.Since(tm).String()))
 		}
 		if cmd == "restart" || cmd == "update" || cmd == "optimize" {
 			if m.GuildID == "705084182673621033" {
